@@ -13,9 +13,10 @@ import { MenuManager } from "./menu"
 export class ItemGUI {
 	private static readonly border = 3
 	private static readonly minSize = 16
-	private readonly position = new Rectangle()
-	private static readonly outlineColor = Color.Black
 	private static readonly fontWidth = 500
+	private static readonly outlineColor = Color.Black
+
+	private readonly position = new Rectangle()
 
 	constructor(private readonly menu: MenuManager) {}
 

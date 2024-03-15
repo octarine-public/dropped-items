@@ -1,8 +1,10 @@
 import "./translations"
 
 import {
+	DOTAGameUIState,
 	Entity,
 	EventsSDK,
+	GameState,
 	PhysicalItem,
 	Sleeper
 } from "github.com/octarine-public/wrapper/index"
@@ -17,8 +19,15 @@ const bootstrap = new (class CWorldItems {
 
 	private readonly items: PhysicalItem[] = []
 
+	private get shouldDraw() {
+		return (
+			this.menu.State.value &&
+			GameState.UIState === DOTAGameUIState.DOTA_GAME_UI_DOTA_INGAME
+		)
+	}
+
 	public Draw() {
-		if (!this.menu.State.value || !this.items.length) {
+		if (!this.shouldDraw || !this.items.length) {
 			return
 		}
 		for (let index = this.items.length - 1; index > -1; index--) {
