@@ -5,19 +5,22 @@ import {
 	Entity,
 	EventsSDK,
 	GameState,
-	PhysicalItem,
-	Sleeper
+	PhysicalItem
 } from "github.com/octarine-public/wrapper/index"
 
 import { ItemGUI } from "./gui"
 import { MenuManager } from "./menu"
 
-const bootstrap = new (class CWorldItems {
-	private readonly sleeper = new Sleeper()
-	private readonly menu = new MenuManager(this.sleeper)
+new (class CWorldItems {
+	private readonly menu = new MenuManager()
 	private readonly gui = new ItemGUI(this.menu)
-
 	private readonly items: PhysicalItem[] = []
+
+	constructor() {
+		EventsSDK.on("Draw", this.Draw.bind(this))
+		EventsSDK.on("EntityCreated", this.EntityCreated.bind(this))
+		EventsSDK.on("EntityDestroyed", this.EntityDestroyed.bind(this))
+	}
 
 	private get shouldDraw() {
 		return (
@@ -51,18 +54,4 @@ const bootstrap = new (class CWorldItems {
 			this.items.remove(entity)
 		}
 	}
-
-	public GameChanged() {
-		this.sleeper.FullReset()
-	}
 })()
-
-EventsSDK.on("Draw", () => bootstrap.Draw())
-
-EventsSDK.on("GameEnded", () => bootstrap.GameChanged())
-
-EventsSDK.on("GameStarted", () => bootstrap.GameChanged())
-
-EventsSDK.on("EntityCreated", entity => bootstrap.EntityCreated(entity))
-
-EventsSDK.on("EntityDestroyed", entity => bootstrap.EntityDestroyed(entity))
