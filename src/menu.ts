@@ -19,4 +19,10 @@ export class MenuManager {
 		this.Size = this.tree.AddSlider("Image size", 15, 0, 30)
 		this.Rounding = this.tree.AddSlider("Image rounding", 10, 0, 10)
 	}
+
+	public MenuChanged(callback: () => void) {
+		this.State.OnValue(() => callback())
+		this.Size.OnValue(() => callback())
+		this.Rounding.OnValue(() => callback())
+	}
 }

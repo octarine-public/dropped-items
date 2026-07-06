@@ -5,7 +5,8 @@ import {
 	Entity,
 	EventsSDK,
 	GameState,
-	PhysicalItem
+	PhysicalItem,
+	RendererSDK
 } from "github.com/octarine-public/wrapper/index"
 
 import { ItemGUI } from "./gui"
@@ -17,9 +18,10 @@ new (class CWorldItems {
 	private readonly items: PhysicalItem[] = []
 
 	constructor() {
-		EventsSDK.on("Draw", this.Draw.bind(this))
+		EventsSDK.on("Draw2D", this.Draw.bind(this))
 		EventsSDK.on("EntityCreated", this.EntityCreated.bind(this))
 		EventsSDK.on("EntityDestroyed", this.EntityDestroyed.bind(this))
+		this.menu.MenuChanged(() => RendererSDK.InvalidateDraw2D())
 	}
 
 	private get shouldDraw() {
@@ -39,7 +41,7 @@ new (class CWorldItems {
 			if (item === undefined || !item.IsValid) {
 				continue
 			}
-			this.gui.Draw(item, physicalItem.Position)
+			this.gui.Draw(item, physicalItem)
 		}
 	}
 
@@ -52,6 +54,7 @@ new (class CWorldItems {
 	public EntityDestroyed(entity: Entity) {
 		if (entity instanceof PhysicalItem) {
 			this.items.remove(entity)
+			RendererSDK.InvalidateDraw2D()
 		}
 	}
 })()

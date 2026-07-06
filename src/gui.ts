@@ -1,11 +1,13 @@
 import {
+	AnchorKind,
 	Color,
 	GUIInfo,
 	Item,
+	PhysicalItem,
 	Rectangle,
 	RendererSDK,
 	TextFlags,
-	Vector3
+	Vector2
 } from "github.com/octarine-public/wrapper/index"
 
 import { MenuManager } from "./menu"
@@ -20,11 +22,37 @@ export class ItemGUI {
 
 	constructor(private readonly menu: MenuManager) {}
 
-	public Draw(item: Item, itemPos: Vector3) {
-		if (!this.Update(itemPos)) {
+	public Draw(item: Item, physicalItem: PhysicalItem) {
+		const size = this.menu.Size.value + ItemGUI.minSize,
+			itemSize = GUIInfo.ScaleVector(size, size),
+			halfSize = itemSize.DivideScalar(2)
+
+		const w2s = RendererSDK.WorldToScreen(physicalItem.Position)
+		if (w2s === undefined || this.Contains(w2s.Subtract(halfSize))) {
 			return
 		}
 
+		this.position.pos1.CopyFrom(halfSize.MultiplyScalar(-1))
+		this.position.pos2.CopyFrom(halfSize)
+
+		RendererSDK.DrawEntityRelative(
+			physicalItem.Index,
+			AnchorKind.Origin,
+			() => {
+				if (!physicalItem.IsValid) {
+					return undefined
+				}
+				const pos = RendererSDK.WorldToScreen(physicalItem.Position)
+				if (pos === undefined || this.Contains(pos.Subtract(halfSize))) {
+					return undefined
+				}
+				return pos
+			},
+			() => this.DrawContent(item)
+		)
+	}
+
+	protected DrawContent(item: Item) {
 		const level = item.Level,
 			cooldown = item.Cooldown,
 			texture = item.TexturePath,
@@ -41,21 +69,6 @@ export class ItemGUI {
 		this.DrawCharges(charges)
 		this.DrawLevel(level, item.MaxLevel)
 		this.DrawCooldown(charges, cooldown, this.menu.Size.value)
-	}
-
-	protected Update(original: Vector3) {
-		const w2s = RendererSDK.WorldToScreen(original)
-		if (w2s === undefined) {
-			return false
-		}
-
-		const size = this.menu.Size.value + ItemGUI.minSize,
-			itemSize = GUIInfo.ScaleVector(size, size),
-			position = w2s.Subtract(itemSize.DivideScalar(2))
-
-		this.position.pos1.CopyFrom(position)
-		this.position.pos2.CopyFrom(position.Add(itemSize))
-		return !this.Contains()
 	}
 
 	protected DrawCooldown(level: number, cooldown: number, additionalSize: number) {
@@ -111,11 +124,11 @@ export class ItemGUI {
 		return rnd === 1 ? -1 : rnd - 1
 	}
 
-	protected Contains() {
+	protected Contains(pos1: Vector2) {
 		return (
-			GUIInfo.ContainsShop(this.position.pos1) ||
-			GUIInfo.ContainsMiniMap(this.position.pos1) ||
-			GUIInfo.ContainsScoreboard(this.position.pos1)
+			GUIInfo.ContainsShop(pos1) ||
+			GUIInfo.ContainsMiniMap(pos1) ||
+			GUIInfo.ContainsScoreboard(pos1)
 		)
 	}
 
