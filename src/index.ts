@@ -1,14 +1,5 @@
 import "./translations"
 
-import {
-	DOTAGameUIState,
-	Entity,
-	EventsSDK,
-	GameState,
-	PhysicalItem,
-	RendererSDK
-} from "github.com/octarine-public/wrapper/index"
-
 import { ItemGUI } from "./gui"
 import { MenuManager } from "./menu"
 
@@ -18,10 +9,10 @@ new (class CWorldItems {
 	private readonly items: PhysicalItem[] = []
 
 	constructor() {
-		EventsSDK.on("Draw2D", this.Draw.bind(this))
+		EventsSDK.on("Draw", this.Draw.bind(this))
+		EventsSDK.on("GameEnded", this.GameEnded.bind(this))
 		EventsSDK.on("EntityCreated", this.EntityCreated.bind(this))
 		EventsSDK.on("EntityDestroyed", this.EntityDestroyed.bind(this))
-		this.menu.MenuChanged(() => RendererSDK.InvalidateDraw2D())
 	}
 
 	private get shouldDraw() {
@@ -35,10 +26,11 @@ new (class CWorldItems {
 		if (!this.shouldDraw || !this.items.length) {
 			return
 		}
+		this.gui.BeginFrame()
 		for (let index = this.items.length - 1; index > -1; index--) {
 			const physicalItem = this.items[index],
 				item = physicalItem.Item
-			if (item === undefined || !item.IsValid) {
+			if (!physicalItem.IsValid || item === undefined || !item.IsValid) {
 				continue
 			}
 			this.gui.Draw(item, physicalItem)
@@ -54,7 +46,10 @@ new (class CWorldItems {
 	public EntityDestroyed(entity: Entity) {
 		if (entity instanceof PhysicalItem) {
 			this.items.remove(entity)
-			RendererSDK.InvalidateDraw2D()
 		}
+	}
+
+	protected GameEnded() {
+		this.items.splice(0)
 	}
 })()

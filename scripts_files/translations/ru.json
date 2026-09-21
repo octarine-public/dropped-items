@@ -1,9 +1,17 @@
 {
 	"State": "Состояние",
+	"Opacity on hover": "Прозрачность при наведении",
+	"Opacity": "Непрозрачность",
+	"Hover opacity": "Непрозрачность при наведении",
+	"Percentage of normal opacity kept near the mouse": "Доля обычной непрозрачности рядом с курсором, в процентах",
+	"Shape": "Форма",
+	"Rectangle": "Прямоугольник",
+	"Square": "Квадрат",
+	"Fade dropped items near the mouse": "Делать выпавшие предметы прозрачнее рядом с курсором",
 	"Dropped items": "Выпавшие предметы",
 	"Image size": "Размер изображений",
-	"Image rounding": "Cкругления изображений",
-	"Reset settings": "Сбросить настройки",
+	"Image rounding": "Скругления изображений",
 	"Drawing dropped items in the world": "Отрисовка выпавших предметов в мире",
-	"Reset settings to default values": "Сбросить настройки на значения по умолчанию"
+	"Additional size of an item lying in the world": "Доп. размер предмета, лежащего в мире",
+	"Corner radius of the icon, in pixels at 1080p": "Радиус углов иконки, в пикселях при 1080p"
 }

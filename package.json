@@ -1,7 +1,7 @@
 {
+	"name": "dropped-items",
 	"version": "1.0.0",
 	"main": "src/index.ts",
-	"name": "dropped-items",
 	"description": "Dropped items",
 	"license": "GPL-3.0-or-later",
 	"author": "SicdeX",
@@ -22,13 +22,20 @@
 	"scripts": {
 		"check-types": "npx tsc",
 		"check-types-watch": "npx tsc --watch",
+		"check-circular": "npx madge --circular src/index.ts",
 		"upgrade-pack": "yarn upgrade-interactive --latest",
-		"check-circular": "npx madge --circular scripts/",
 		"lint": "eslint -c .eslintrc.json --ext .ts --fix ."
 	},
 	"repository": {
 		"type": "git",
 		"directory": "/",
 		"url": "https://github.com/octarine-public/dropped-items.git"
-	}
+	},
+	"engines": {
+		"node": ">=18"
+	},
+	"octarineBundle": true,
+	"octarineMinimize": true,
+	"octarineObfuscate": true,
+	"octarineTreeShaking": true
 }
