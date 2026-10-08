@@ -1,4 +1,5 @@
 import { DroppedItemsIcons } from "./icons"
+import { AddLaneAndFarmPage } from "./lane-and-farm"
 
 export class MenuManager {
 	public readonly Tree: Menu.Node
@@ -10,10 +11,8 @@ export class MenuManager {
 	public readonly Opacity: Menu.Slider
 	public readonly HoverOpacity: Menu.Slider
 
-	private readonly visual = Menu.AddEntry("Visual")
-
 	constructor() {
-		this.Tree = this.visual.AddNode(
+		this.Tree = AddLaneAndFarmPage(
 			"Dropped items",
 			DroppedItemsIcons.Page,
 			"Drawing dropped items in the world"
