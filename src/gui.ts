@@ -24,11 +24,13 @@ const INK = Color.White
 /**
  * One dropped item's icon where it lies. The old renderer anchored the drawing to the entity and
  * left it standing in the persisted 2D layer until something invalidated it; the canvas keeps no
- * drawing of its own between frames, so the position is projected and the icon painted again
- * every frame. What the sliders ask for is the same for every item in a frame, so it is taken
- * once in {@link ItemGUI.BeginFrame} and an item costs its projection and nothing else.
+ * drawing of its own between frames, so the icon is painted again every frame, in px from a world
+ * anchor on the item that the core places at present. The projection only decides whether it is
+ * drawn and how strongly. What the sliders ask for is the same for every item in a frame, so it is
+ * taken once in {@link ItemGUI.BeginFrame} and an item costs its projection and its anchor.
  */
 export class ItemGUI {
+	/** The icon's box in px from the item's anchor, the same for every item in a frame. */
 	private readonly position = new Rectangle()
 	/** Where a reading stands once it is nudged off the corner; reused rather than cloned. */
 	private readonly offsetPosition = new Rectangle()
@@ -53,6 +55,8 @@ export class ItemGUI {
 		const ratio = this.menu.Shape.SelectedID === 1 ? 1 : ITEM_RATIO
 		this.size.CopyFrom(GUIInfo.ScaleVector(height * ratio, height))
 		this.half.CopyFrom(this.size).DivideScalarForThis(2)
+		this.position.pos1.SetVector(-this.half.x, -this.half.y)
+		this.position.pos2.CopyFrom(this.position.pos1).AddForThis(this.size)
 		this.offset.CopyFrom(GUIInfo.ScaleVector(CORNER_OFFSET, CORNER_OFFSET))
 		// a radius over half the shorter side is no rounder, and the shader would clamp it anyway
 		this.radius = Math.round(
@@ -62,7 +66,8 @@ export class ItemGUI {
 	}
 
 	public Draw(item: Item, physicalItem: PhysicalItem) {
-		const w2s = RendererSDK.WorldToScreen(physicalItem.Position)
+		const origin = physicalItem.Position
+		const w2s = RendererSDK.WorldToScreen(origin)
 		if (w2s === undefined) {
 			return
 		}
@@ -70,8 +75,6 @@ export class ItemGUI {
 		if (this.Contains(corner)) {
 			return
 		}
-		this.position.pos1.CopyFrom(corner)
-		this.position.pos2.CopyFrom(corner).AddForThis(this.size)
 		this.opacity = this.menu.Opacity.value / 100
 		if (this.menu.OpacityByCursor.value) {
 			// Use cooldowns' proximity calculation with the selected minimum opacity.
@@ -88,7 +91,9 @@ export class ItemGUI {
 				1
 			)
 		}
+		canvas.AnchorWorld(origin.x, origin.y, origin.z)
 		this.DrawContent(item)
+		canvas.Anchor()
 	}
 
 	protected DrawContent(item: Item) {
